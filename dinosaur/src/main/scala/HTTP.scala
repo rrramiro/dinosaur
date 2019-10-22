@@ -5,25 +5,25 @@ import scalanative.native._
 package object dinosaur {}
 
 sealed trait Method
-case object GET extends Method
-case object POST extends Method
-case object PUT extends Method
-case object DELETE extends Method
-case object HEAD extends Method
+case object GET     extends Method
+case object POST    extends Method
+case object PUT     extends Method
+case object DELETE  extends Method
+case object HEAD    extends Method
 case object OPTIONS extends Method
 case object CONNECT extends Method
-case object PATCH extends Method
+case object PATCH   extends Method
 
 case class Request(
-  method: Function0[Method],
-  pathInfo: Function0[Seq[String]],
-  params: Function1[String, Seq[String]]
+    method: Function0[Method],
+    pathInfo: Function0[Seq[String]],
+    params: Function1[String, Seq[String]]
 )
 
 case class Response(
-  body: ResponseBody,
-  statusCode: Int = 200,
-  headers: Map[String, String] = Map("Content-type" -> "text/html; charset=utf-8")
+    body: ResponseBody,
+    statusCode: Int              = 200,
+    headers: Map[String, String] = Map("Content-type" -> "text/html; charset=utf-8")
 ) {
   def bodyToString() = this.body match {
     case StringBody(body) => body
@@ -41,10 +41,10 @@ case class Response(
 }
 
 sealed trait ResponseBody
-case class StringBody(body:String) extends ResponseBody
+case class StringBody(body: String) extends ResponseBody
 // TODO: HTML and JSON.  Protobuf, Avro, Thrift?
 
 object Response {
-  implicit def stringToResponse(body:String):Response = Response(StringBody(body))
-  implicit def stringToRequestResponse(body:String):(Request => Response) = _ => Response(StringBody(body))
+  implicit def stringToResponse(body: String): Response = Response(StringBody(body))
+  implicit def stringToRequestResponse(body: String): (Request => Response) = _ => Response(StringBody(body))
 }

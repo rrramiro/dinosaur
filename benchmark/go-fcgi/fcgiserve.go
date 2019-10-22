@@ -1,25 +1,28 @@
 package main
-import "github.com/tomasen/fcgi_client"
+
+import fcgiclient "github.com/tomasen/fcgi_client"
 import "log"
 import "io/ioutil"
 import "os"
 import "net/http"
 
+// https://github.com/yookoala/gofast
+
 type reqResp struct {
-	r *http.Request
+	r        *http.Request
 	respChan chan codeContent
 }
 
 type codeContent struct {
 	content []byte
-	code int
+	code    int
 }
 
 func handleReq(fcgi *fcgiclient.FCGIClient, r *http.Request, respChan chan codeContent) {
 	defer func() {
 		if err := recover(); err != nil {
 			log.Println("ERROR IN DOWNSTREAM COMM", err)
-			respChan <- codeContent{[]byte("ERROR"),500}
+			respChan <- codeContent{[]byte("ERROR"), 500}
 			panic(err)
 		}
 	}()
@@ -35,16 +38,16 @@ func handleReq(fcgi *fcgiclient.FCGIClient, r *http.Request, respChan chan codeC
 	// log.Println("sending binary request downstream")
 	resp, err := fcgi.Get(env)
 	if err != nil {
-			log.Println("err:", err)
+		log.Println("err:", err)
 	}
 
 	// log.Println("awaiting binary response from downstream")
 	content, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-			log.Println("err:", err)
+		log.Println("err:", err)
 	}
 	// log.Println("got binary response from downstream", content)
-	respChan <- codeContent{content,200}
+	respChan <- codeContent{content, 200}
 	// log.Println("done")
 }
 
@@ -52,7 +55,7 @@ func fcgiWorker(requests chan reqResp) {
 	// log.Println("Connecting to ", os.Args[2])
 	fcgi, err := fcgiclient.Dial("unix", os.Args[2])
 	if err != nil {
-			log.Println("err:", err)
+		log.Println("err:", err)
 	}
 
 	defer func() {
@@ -68,11 +71,11 @@ func fcgiWorker(requests chan reqResp) {
 }
 
 func main() {
-	requests := make (chan reqResp)
+	requests := make(chan reqResp)
 	for i := 0; i < 1; i++ {
 		go fcgiWorker(requests)
 	}
-	handler := func (w http.ResponseWriter, r *http.Request) {
+	handler := func(w http.ResponseWriter, r *http.Request) {
 		// log.Println("sending request to worker")
 		respChan := make(chan codeContent)
 		requests <- reqResp{r, respChan}
