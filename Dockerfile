@@ -9,7 +9,7 @@ RUN echo "installing dependencies" \
 
 # Install SBT
 ENV SBT_VERSION 1.2.6
-ENV SBT_HOME /usr/local/sbt
+ENV SBT_HOME /usr/local/opt/sbt
 ENV PATH ${PATH}:${SBT_HOME}/bin
 RUN echo "installing SBT $SBT_VERSION" \
     && mkdir -p "$SBT_HOME" \
